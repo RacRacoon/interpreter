@@ -1,10 +1,10 @@
-AMBIL 
-JUMP.EQ.0 L1
+AMBIL         
+PUSH 2        
+MOD           
+CEK.EQ.0 L1  
+BUST "ganjil"  
+UDAHAN        
 
-LOOP:
-PUSH 2
-SUB
-JUMP.EQ.0 L1
-JUMP.GT.0 LOOP
-BUST "odd"
-UDAHAN
+L1:           
+BUST "genap"  
+UDAHAN       

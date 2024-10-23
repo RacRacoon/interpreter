@@ -18,7 +18,7 @@ for line in program_lines:
     if opcode == "":
         continue
     if opcode.endswith(":"):
-        label_tracker[opcode[:-1]] = token_counter
+        label_tracker[opcode[:-1]] = token_counter  # Track the label positions
         continue
 
     program.append(opcode)
@@ -32,7 +32,7 @@ for line in program_lines:
         string_literal = ' '.join(parts[1:])[1:-1]
         program.append(string_literal)
         token_counter += 1
-    elif opcode == "CEK.0":
+    elif opcode in ["CEK.EQ.0", "CEK.GT.0"]:
         label = parts[1]
         program.append(label)
         token_counter += 1
@@ -73,17 +73,17 @@ while pc < len(program) and program[pc] != "UDAHAN":
     elif opcode == "POP":
         stack.pop()
     elif opcode == "ADD":
-        # Memastikan ada dua angka untuk ditambahkan
-        if stack.sp >= 1:  # Pastikan ada dua nilai di stack
-            a = stack.pop()
-            b = stack.pop()
-            stack.push(a + b)
-        else:
-            print("Tidak cukup nilai di stack untuk ADD.")
+        a = stack.pop()
+        b = stack.pop()
+        stack.push(a + b)
     elif opcode == "SUB":
         a = stack.pop()
         b = stack.pop()
         stack.push(a - b)
+    elif opcode == "MOD":
+        b = stack.pop()
+        a = stack.pop()
+        stack.push(a % b)
     elif opcode == "BUST":
         if pc < len(program) and isinstance(program[pc], str):
             # Jika ada string literal setelah BUST, cetak string tersebut
@@ -99,16 +99,25 @@ while pc < len(program) and program[pc] != "UDAHAN":
     elif opcode == "AMBIL":
         number = int(input())
         stack.push(number)
-    elif opcode == "CEK.0":
+    elif opcode == "CEK.EQ.0":
         number = stack.top()
+        label = program[pc]
+        pc += 1
         if number == 0:
-            label = program[pc]
             if label in label_tracker:
                 pc = label_tracker[label]
             else:
                 print(f"Label {label} tidak ditemukan.")
                 break
-        else:
-            pc += 1
+    elif opcode == "CEK.GT.0":
+        number = stack.top()
+        label = program[pc]
+        pc += 1
+        if number > 0:
+            if label in label_tracker:
+                pc = label_tracker[label]
+            else:
+                print(f"Label {label} tidak ditemukan.")
+                break
 
 # Program akan berhenti ketika mencapai "UDAHAN"
