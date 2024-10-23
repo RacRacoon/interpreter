@@ -48,11 +48,15 @@ class Stack:
         self.buf[self.sp] = number
 
     def pop(self):
+        if self.sp < 0:
+            raise IndexError("Pop dari stack kosong")
         number = self.buf[self.sp]
         self.sp -= 1
         return number
 
     def top(self):
+        if self.sp < 0:
+            raise IndexError("Top dari stack kosong")
         return self.buf[self.sp]
 
 # Eksekusi program
@@ -69,9 +73,13 @@ while pc < len(program) and program[pc] != "UDAHAN":
     elif opcode == "POP":
         stack.pop()
     elif opcode == "ADD":
-        a = stack.pop()
-        b = stack.pop()
-        stack.push(a + b)
+        # Memastikan ada dua angka untuk ditambahkan
+        if stack.sp >= 1:  # Pastikan ada dua nilai di stack
+            a = stack.pop()
+            b = stack.pop()
+            stack.push(a + b)
+        else:
+            print("Tidak cukup nilai di stack untuk ADD.")
     elif opcode == "SUB":
         a = stack.pop()
         b = stack.pop()
@@ -88,7 +96,7 @@ while pc < len(program) and program[pc] != "UDAHAN":
                 print(stack.pop())
             else:
                 print("Stack kosong, tidak ada nilai untuk dicetak.")
-    elif opcode == "READ":
+    elif opcode == "AMBIL":
         number = int(input())
         stack.push(number)
     elif opcode == "CEK.0":
