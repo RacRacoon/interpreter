@@ -1,0 +1,10 @@
+READ
+READ
+SUB 
+CEK.0 L1
+BUST "Angka Gak Sama"
+UDAHAN 
+
+L1:
+BUST "Angka Sama"
+UDAHAN
