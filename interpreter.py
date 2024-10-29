@@ -76,7 +76,7 @@ while pc < len(program) and program[pc] != "UDAHAN":
         a = stack.pop()
         b = stack.pop()
         stack.push(a + b)
-    elif opcode == "SUB":
+    elif opcode == "KURANGIN":
         a = stack.pop()
         b = stack.pop()
         stack.push(a - b)
@@ -99,8 +99,8 @@ while pc < len(program) and program[pc] != "UDAHAN":
     elif opcode == "AMBIL":
         number = int(input())
         stack.push(number)
-    elif opcode == "CEK.EQ.0":
-        number = stack.top()
+    elif opcode == "CEK.KALO.0":
+        number = stack.pop()
         label = program[pc]
         pc += 1
         if number == 0:
@@ -109,8 +109,8 @@ while pc < len(program) and program[pc] != "UDAHAN":
             else:
                 print(f"Label {label} tidak ditemukan.")
                 break
-    elif opcode == "CEK.GT.0":
-        number = stack.top()
+    elif opcode == "CEK.NGGAK.0":
+        number = stack.pop()
         label = program[pc]
         pc += 1
         if number > 0:
