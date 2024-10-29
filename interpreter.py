@@ -1,9 +1,9 @@
 import sys
 
-# Read arguments
+# Membaca argumen
 program_filepath = sys.argv[1]
 
-# Tokenize program
+# Membaca dan memproses program dari file
 program_lines = []
 with open(program_filepath, "r") as program_file:
     program_lines = [line.strip() for line in program_file.readlines()]
@@ -11,6 +11,8 @@ with open(program_filepath, "r") as program_file:
 program = []
 token_counter = 0
 label_tracker = {}
+
+# Tokenisasi dan pelacakan label
 for line in program_lines:
     parts = line.split(" ")
     opcode = parts[0]
@@ -18,7 +20,7 @@ for line in program_lines:
     if opcode == "":
         continue
     if opcode.endswith(":"):
-        label_tracker[opcode[:-1]] = token_counter  # Track the label positions
+        label_tracker[opcode[:-1]] = token_counter  # Lacak posisi label
         continue
 
     program.append(opcode)
@@ -32,7 +34,7 @@ for line in program_lines:
         string_literal = ' '.join(parts[1:])[1:-1]
         program.append(string_literal)
         token_counter += 1
-    elif opcode in ["CEK.EQ.0", "CEK.GT.0"]:
+    elif opcode in ["CEK.KALO.0", "CEK.NGGAK.0"]:
         label = parts[1]
         program.append(label)
         token_counter += 1
@@ -40,7 +42,7 @@ for line in program_lines:
 # Implementasi stack
 class Stack:
     def __init__(self, size):
-        self.buf = [0 for _ in range(size)]
+        self.buf = [0] * size
         self.sp = -1
 
     def push(self, number):
@@ -66,6 +68,7 @@ stack = Stack(256)
 while pc < len(program) and program[pc] != "UDAHAN":
     opcode = program[pc]
     pc += 1
+
     if opcode == "PUSH":
         number = program[pc]
         pc += 1
@@ -86,38 +89,33 @@ while pc < len(program) and program[pc] != "UDAHAN":
         stack.push(a % b)
     elif opcode == "BUST":
         if pc < len(program) and isinstance(program[pc], str):
-            # Jika ada string literal setelah BUST, cetak string tersebut
+            # Cetak string literal jika ada
             string_literal = program[pc]
             pc += 1
             print(string_literal)
         else:
-            # Jika tidak ada string literal, cetak nilai dari stack
-            if stack.sp >= 0:  # Pastikan stack tidak kosong
+            # Cetak nilai dari stack jika tidak ada string literal
+            if stack.sp >= 0:
                 print(stack.pop())
             else:
                 print("Stack kosong, tidak ada nilai untuk dicetak.")
     elif opcode == "AMBIL":
-        number = int(input())
-        stack.push(number)
+        try:
+            number = int(input("Masukkan angka: "))
+            stack.push(number)
+        except ValueError:
+            print("Input tidak valid, masukkan angka!")
     elif opcode == "CEK.KALO.0":
         number = stack.pop()
         label = program[pc]
         pc += 1
         if number == 0:
-            if label in label_tracker:
-                pc = label_tracker[label]
-            else:
-                print(f"Label {label} tidak ditemukan.")
-                break
+            pc = label_tracker.get(label, pc)
     elif opcode == "CEK.NGGAK.0":
         number = stack.pop()
         label = program[pc]
         pc += 1
-        if number > 0:
-            if label in label_tracker:
-                pc = label_tracker[label]
-            else:
-                print(f"Label {label} tidak ditemukan.")
-                break
+        if number != 0:
+            pc = label_tracker.get(label, pc)
 
-# Program akan berhenti ketika mencapai "UDAHAN"
+# Program berhenti saat mencapai "UDAHAN"

@@ -1,7 +1,7 @@
 AMBIL         
 PUSH 2        
 MOD           
-CEK.EQ.0 L1  
+CEK.KALO.0 L1  
 BUST "ganjil"  
 UDAHAN        
 
