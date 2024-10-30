@@ -117,5 +117,17 @@ while pc < len(program) and program[pc] != "UDAHAN":
         pc += 1
         if number != 0:
             pc = label_tracker.get(label, pc)
+    elif opcode == "GANTIBINER":
+        number = stack.pop()
+        print(bin(number)[2:])  # Konversi ke biner dan cetak tanpa '0b'
+        stack.push(number)      # Memasukkan kembali angka asli ke stack
+    elif opcode == "GANTIHEXA":
+        number = stack.pop()
+        print(hex(number)[2:])  # Konversi ke heksadesimal dan cetak tanpa '0x'
+        stack.push(number)      # Memasukkan kembali angka asli ke stack
+    elif opcode == "GANTIOKTA":
+        number = stack.pop()
+        print(oct(number)[2:])  # Konversi ke oktal dan cetak tanpa '0o'
+        stack.push(number)      # Memasukkan kembali angka asli ke stack
 
 # Program berhenti saat mencapai "UDAHAN"
