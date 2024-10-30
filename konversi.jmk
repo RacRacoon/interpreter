@@ -1,12 +1,4 @@
-AMBIL
-
-BUST "Biner : "
-GANTIBINER
-
-BUST "Hexa : "
-GANTIHEXA
-
-BUST "Okta : "
-GANTIOKTA
-
-UDAHAN
+AMBIL                               
+UBAH             
+CETAK "Hasil konversi adalah:"  
+BERHENTI

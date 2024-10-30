@@ -1,9 +1,7 @@
 import sys
 
-# Membaca argumen
 program_filepath = sys.argv[1]
 
-# Membaca dan memproses program dari file
 program_lines = []
 with open(program_filepath, "r") as program_file:
     program_lines = [line.strip() for line in program_file.readlines()]
@@ -20,29 +18,28 @@ for line in program_lines:
     if opcode == "":
         continue
     if opcode.endswith(":"):
-        label_tracker[opcode[:-1]] = token_counter  # Lacak posisi label
+        label_tracker[opcode[:-1]] = token_counter
         continue
 
     program.append(opcode)
     token_counter += 1
 
-    if opcode == "PUSH":
+    if opcode == "DORONG":
         number = int(parts[1])
         program.append(number)
         token_counter += 1
-    elif opcode == "BUST" and len(parts) > 1:
+    elif opcode == "CETAK":
         string_literal = ' '.join(parts[1:])[1:-1]
         program.append(string_literal)
         token_counter += 1
-    elif opcode in ["CEK.KALO.0", "CEK.NGGAK.0"]:
+    elif opcode in ("LOMPAT.SAMA.0", "LOMPAT.LEBIH.0"):
         label = parts[1]
         program.append(label)
         token_counter += 1
 
-# Implementasi stack
 class Stack:
-    def __init__(self, size):
-        self.buf = [0] * size
+    def __init__(self, size):  # Memperbaiki konstruktor
+        self.buf = [0 for _ in range(size)]
         self.sp = -1
 
     def push(self, number):
@@ -51,83 +48,52 @@ class Stack:
 
     def pop(self):
         if self.sp < 0:
-            raise IndexError("Pop dari stack kosong")
+            return 0
         number = self.buf[self.sp]
         self.sp -= 1
         return number
 
-    def top(self):
-        if self.sp < 0:
-            raise IndexError("Top dari stack kosong")
-        return self.buf[self.sp]
+def convert_number(value, base_from, base_to):
+    # Konversi angka berdasarkan basis yang diberikan
+    if base_from == 2:
+        decimal_value = int(value, 2)
+    elif base_from == 8:
+        decimal_value = int(value, 8)
+    elif base_from == 10:
+        decimal_value = int(value)
+    elif base_from == 16:
+        decimal_value = int(value, 16)
 
-# Eksekusi program
+    if base_to == 2:
+        return bin(decimal_value)[2:]  # Mengembalikan sebagai string biner
+    elif base_to == 8:
+        return oct(decimal_value)[2:]  # Mengembalikan sebagai string oktal
+    elif base_to == 10:
+        return str(decimal_value)        # Mengembalikan sebagai string desimal
+    elif base_to == 16:
+        return hex(decimal_value)[2:].upper()  # Mengembalikan sebagai string heksadesimal
+
 pc = 0
 stack = Stack(256)
 
-while pc < len(program) and program[pc] != "UDAHAN":
+while pc < len(program):
     opcode = program[pc]
     pc += 1
 
-    if opcode == "PUSH":
-        number = program[pc]
-        pc += 1
-        stack.push(number)
-    elif opcode == "POP":
-        stack.pop()
-    elif opcode == "ADD":
-        a = stack.pop()
-        b = stack.pop()
-        stack.push(a + b)
-    elif opcode == "KURANGIN":
-        a = stack.pop()
-        b = stack.pop()
-        stack.push(a - b)
-    elif opcode == "MOD":
-        b = stack.pop()
-        a = stack.pop()
-        stack.push(a % b)
-    elif opcode == "BUST":
-        if pc < len(program) and isinstance(program[pc], str):
-            # Cetak string literal jika ada
-            string_literal = program[pc]
-            pc += 1
-            print(string_literal)
-        else:
-            # Cetak nilai dari stack jika tidak ada string literal
-            if stack.sp >= 0:
-                print(stack.pop())
-            else:
-                print("Stack kosong, tidak ada nilai untuk dicetak.")
-    elif opcode == "AMBIL":
-        try:
-            number = int(input("Masukkan angka: "))
-            stack.push(number)
-        except ValueError:
-            print("Input tidak valid, masukkan angka!")
-    elif opcode == "CEK.KALO.0":
-        number = stack.pop()
-        label = program[pc]
-        pc += 1
-        if number == 0:
-            pc = label_tracker.get(label, pc)
-    elif opcode == "CEK.NGGAK.0":
-        number = stack.pop()
-        label = program[pc]
-        pc += 1
-        if number != 0:
-            pc = label_tracker.get(label, pc)
-    elif opcode == "GANTIBINER":
-        number = stack.pop()
-        print(bin(number)[2:])  # Konversi ke biner dan cetak tanpa '0b'
-        stack.push(number)      # Memasukkan kembali angka asli ke stack
-    elif opcode == "GANTIHEXA":
-        number = stack.pop()
-        print(hex(number)[2:])  # Konversi ke heksadesimal dan cetak tanpa '0x'
-        stack.push(number)      # Memasukkan kembali angka asli ke stack
-    elif opcode == "GANTIOKTA":
-        number = stack.pop()
-        print(oct(number)[2:])  # Konversi ke oktal dan cetak tanpa '0o'
-        stack.push(number)      # Memasukkan kembali angka asli ke stack
-
-# Program berhenti saat mencapai "UDAHAN"
+    if opcode == "AMBIL":
+        value = input("Masukkan nilai yang ingin dikonversi: ")
+        stack.push(value)
+        base_from = int(input("Masukkan basis asal (Biner (2), Octal (8), Desimal (10), atau Hexadesimal (16)): "))
+        stack.push(base_from)
+        base_to = int(input("Masukkan basis tujuan (Biner (2), Octal (8), Desimal (10), atau Hexadesimal (16)): "))
+        stack.push(base_to)
+    elif opcode == "UBAH":
+        base_to = stack.pop()
+        base_from = stack.pop()
+        value = stack.pop()
+        result = convert_number(value, base_from, base_to)
+        stack.push(result)
+    elif opcode == "CETAK":
+        print("Hasil konversi bilangan adalah:", stack.pop())
+    elif opcode == "BERHENTI":
+        break
